@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/rwcarlsen/goexif/tiff"
 )
@@ -254,6 +255,29 @@ func TestZeroLengthTagError(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "zero length tag value") {
 		t.Fatal("wrong error:", err.Error())
+	}
+}
+
+// Ensure DateTime function is working
+func TestDateTime(t *testing.T) {
+	name := "sample1.jpg"
+	expTime := time.Date(2003, 11, 23, 18, 07, 37, 0, time.Local)
+	f, err := os.Open(name)
+	if err != nil {
+		t.Fatalf("%v\n", err)
+	}
+	defer f.Close()
+
+	x, err := Decode(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	dt, err := x.DateTime()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !dt.Equal(expTime) {
+		t.Fatalf("Expected time not equal to time in file: %s != %s", expTime, dt)
 	}
 }
 
